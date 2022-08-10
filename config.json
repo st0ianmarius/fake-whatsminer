@@ -1,0 +1,62 @@
+{
+  "tcpServer": {
+    "port": 4028
+  },
+  "miner": {
+    "mac": "M30S-1",
+    "model": "M30S+",
+    "powerDraw": {
+      "min": 3000,
+      "max": 3700
+    },
+    "powerMode": "Normal",
+    "envTemp": 60,
+    "hashboards": [
+      {
+        "id": 0,
+        "hashrate": {
+          "min": 12,
+          "max": 15
+        },
+        "temperature": {
+          "min": 60,
+          "max": 90
+        },
+        "fanSpeed": {
+          "in": 4260,
+          "out": 4350
+        }
+      },
+      {
+        "id": 1,
+        "hashrate": {
+          "min": 12,
+          "max": 15
+        },
+        "temperature": {
+          "min": 60,
+          "max": 90
+        },
+        "fanSpeed": {
+          "in": 4260,
+          "out": 4350
+        }
+      },
+      {
+        "id": 2,
+        "hashrate": {
+          "min": 12,
+          "max": 15
+        },
+        "temperature": {
+          "min": 60,
+          "max": 90
+        },
+        "fanSpeed": {
+          "in": 4260,
+          "out": 4350
+        }
+      }
+    ]
+  }
+}

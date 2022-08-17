@@ -7,17 +7,16 @@ import ConfigServer from './config-server.js';
 
 const miner = new Miner(config.miner);
 
-// whatsminer tcp interface
+// Whatsminer TCP interface
 const tcpServer = new TcpServer(miner, config.tcpServer);
 await tcpServer.start();
 
-// whatsminer luci interface
+// Whatsminer luci interface
 const luciServer = new LuciServer(miner);
 await luciServer.start();
 
-// config server
+// Config server
 const configServer = new ConfigServer(miner, config.configServer);
 await configServer.start();
 
 consola.info('Fake whatsminer is running');
-consola.info(miner.getStats());

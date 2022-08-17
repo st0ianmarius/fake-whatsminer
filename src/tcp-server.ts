@@ -21,10 +21,9 @@ class TcpServer {
       c.on('data', async (data) => {
         try {
           const dataObj = JSON.parse(data.toString());
+          const cmd = dataObj.command ?? dataObj.cmd;
 
-          consola.info(`Received TCP command: ${dataObj.command}`);
-
-          const resultData = await handleTCPCommand(miner, dataObj.command);
+          const resultData = await handleTCPCommand(miner, cmd);
           if (resultData) {
             c.write(JSON.stringify(resultData));
             c.end();
@@ -36,6 +35,10 @@ class TcpServer {
             })
           );
         }
+      });
+
+      c.on('error', (err) => {
+        consola.error(`TCP client error: ${err}`);
       });
     });
 

@@ -9,8 +9,33 @@
       "min": 3000,
       "max": 3700
     },
-    "powerMode": "Normal",
+    "powerMode": "Low",
     "envTemp": 60,
+    "psu": {
+      "name": "P221B",
+      "model": "P221B",
+      "serialNumber": "A1232B0120100049",
+      "current": 8718,
+      "voltage": 22400,
+      "fanSpeed": 6976,
+      "vendor": "7",
+      "version": "-1",
+      "hwVersion": "V01.00",
+      "swVersion": "V01.00.V01.03"
+    },
+    "errorCodes": [329, 350],
+    "pools": [
+      {
+        "url": "epic.pool",
+        "user": "epic-user",
+        "password": "x"
+      },
+      {
+        "url": "epic1.pool",
+        "user": "epic-user",
+        "password": "x"
+      }
+    ],
     "hashboards": [
       {
         "id": 0,

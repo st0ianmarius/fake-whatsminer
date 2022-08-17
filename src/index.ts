@@ -9,6 +9,9 @@ import ConfigServer from './config-server.js';
 consola.info(gradient.morning('Starting fake WhatsMiner...'));
 
 const miner = new Miner(config.miner);
+consola.info(
+  `${miner.model} | MAC: ${miner.mac} | API: ${miner.apiVersion} | FW: ${miner.firmwareVersion}`
+);
 
 // Btminer interface
 const tcpServer = new TcpServer(miner, config.tcpServer);

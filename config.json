@@ -2,9 +2,14 @@
   "tcpServer": {
     "port": 4028
   },
+  "commandsControl": {
+    "syntheticDelay": 5000
+  },
   "miner": {
     "mac": "M30S-1",
     "model": "M30S+",
+    "apiVersion": "2.0.4",
+    "firmwareVersion": "20220125.13.Rel",
     "powerDraw": {
       "min": 3000,
       "max": 3700

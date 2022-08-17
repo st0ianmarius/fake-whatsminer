@@ -17,8 +17,6 @@ class ConfigServer {
     }
 
     this.server = new App();
-
-    // TODO: implement endpoints to manipulate miner config in real-time
   }
 
   public async start() {

@@ -68,7 +68,6 @@ const getStatistics = async (miner: Miner) => {
         'Fan Speed In': hashboard.fanSpeed.in,
         'Fan Speed Out': hashboard.fanSpeed.out,
         'Upfreq Complete': miner.isWarmingUp ? 0 : 1,
-        // TODO: make below customizable
         'Chip Frequency': 598,
         Accepted: 100,
         Rejected: 50,

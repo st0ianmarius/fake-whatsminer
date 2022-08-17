@@ -1,12 +1,12 @@
 import { App } from '@tinyhttp/app';
 import consola from 'consola';
-import Miner from './miner.js';
+import Miner from '../miner';
 
 interface ConfigServerOptions {
   port: number;
 }
 
-class ConfigServer {
+class Config {
   private server: App;
 
   private readonly port: number = 9000;
@@ -30,4 +30,4 @@ class ConfigServer {
 }
 
 export { ConfigServerOptions };
-export default ConfigServer;
+export default Config;

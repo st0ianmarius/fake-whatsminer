@@ -1,4 +1,4 @@
-import Miner from './miner.js';
+import Miner from '../miner.js';
 import { getUnixTime } from 'date-fns';
 
 enum MsgStatus {
@@ -183,7 +183,7 @@ const commands = new Map<
   ['power_off', powerOffMiner],
 ]);
 
-const handleTCPCommand = async (
+const handleCommand = async (
   miner: Miner,
   command: string,
   payload?: unknown
@@ -193,7 +193,7 @@ const handleTCPCommand = async (
     return fn(miner, payload);
   }
 
-  throw new Error(`Unknown command: ${command}`);
+  throw new Error(`Unknown btminer command: ${command}`);
 };
 
-export default handleTCPCommand;
+export { handleCommand };

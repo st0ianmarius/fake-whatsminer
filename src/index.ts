@@ -1,28 +1,35 @@
 import consola from 'consola';
-import gradient from 'gradient-string';
 import config from './config.js';
 import Miner from './miner.js';
-import TcpServer from './tcp-server.js';
-import LuciServer from './luci-server.js';
-import ConfigServer from './config-server.js';
+import BtminerServer from './servers/btminer.js';
+import LuciServer from './servers/luci.js';
+import ConfigServer from './servers/config.js';
 
-consola.info(gradient.morning('Starting fake WhatsMiner...'));
+consola.info('Starting fake WhatsMiner...');
 
 const miner = new Miner(config.miner);
 consola.info(
   `${miner.model} | MAC: ${miner.mac} | API: ${miner.apiVersion} | FW: ${miner.firmwareVersion}`
 );
 
+if (config.commandsControl.syntheticDelay > 0) {
+  consola.info(
+    `Commands are using a synthetic delay of ${config.commandsControl.syntheticDelay}ms`
+  );
+}
+
+consola.info('Starting servers...');
+
 // Btminer interface
-const tcpServer = new TcpServer(miner, config.tcpServer);
-await tcpServer.start();
+const btminerServer = new BtminerServer(miner, config.servers.btminer);
+await btminerServer.start();
 
 // Luci interface
-const luciServer = new LuciServer(miner);
+const luciServer = new LuciServer(miner, config.servers.luci);
 await luciServer.start();
 
 // Config server
-const configServer = new ConfigServer(miner, config.configServer);
+const configServer = new ConfigServer(miner, config.servers.config);
 await configServer.start();
 
-consola.info(gradient.morning('Fake WhatsMiner started!'));
+consola.success('Fake WhatsMiner is ready!');

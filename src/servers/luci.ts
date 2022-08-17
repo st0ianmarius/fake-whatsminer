@@ -3,7 +3,8 @@ import http from 'node:http';
 import { App } from '@tinyhttp/app';
 import bodyParser from 'body-parser';
 import consola from 'consola';
-import Miner, { PowerMode } from './miner.js';
+import Miner from '../miner.js';
+import { registerCommands } from '../commands/luci.js';
 
 const cert = `
 -----BEGIN CERTIFICATE-----
@@ -58,10 +59,21 @@ vfUIn8xJDI+ijQWmAXPAgmZF+o219KFMghyS03Uu/BMiuCx/hDuVvwlEKsgW5dkx
 -----END PRIVATE KEY-----
 `;
 
+interface LuciServerOptions {
+  port: number;
+}
+
 class LuciServer {
   private server: https.Server;
 
-  constructor(miner: Miner) {
+  private readonly httpPort: number = 4028;
+  private readonly httpsPort: number = 443;
+
+  constructor(miner: Miner, options: Partial<LuciServerOptions> = {}) {
+    if (options.port) {
+      this.httpPort = options.port;
+    }
+
     const app = new App({
       settings: {
         networkExtensions: true,
@@ -70,112 +82,8 @@ class LuciServer {
 
     app.use(bodyParser.urlencoded({ extended: true }));
 
-    // Auth
-    app.post('/cgi-bin/luci', (_req, res) => {
-      res.cookie('auth', '1');
-      res.sendStatus(200);
-    });
-
-    // Config
-    app.get('/cgi-bin/luci/admin/network/btminer', (_req, res) => {
-      res.send(`
-          <input type="text" name="token" value="pool-token"/>     
-          ${miner.pools
-            .map(
-              (pool, index) => `
-              <input type="text" name="cbid.pools.default.pool${
-                index + 1
-              }url" value="${pool.url}"/>
-              <input type="text" name="cbid.pools.default.pool${
-                index + 1
-              }user" value="${pool.user}"/>
-              <input type="text" name="cbid.pools.default.pool${
-                index + 1
-              }pw" value="${pool.password}"/>
-            `
-            )
-            .join('')}
-        `);
-    });
-    app.post('/cgi-bin/luci/admin/network/btminer', (req, res) => {
-      if (req.body) {
-        for (let i = 0; i < 3; i++) {
-          if (req.body[`cbid.pools.default.pool${i + 1}url`]) {
-            miner.pools[i] = {
-              url: req.body[`cbid.pools.default.pool${i + 1}url`],
-              user: req.body[`cbid.pools.default.pool${i + 1}user`],
-              password: req.body[`cbid.pools.default.pool${i + 1}pw`],
-            };
-          } else {
-            miner.pools.splice(i, 1);
-          }
-        }
-      }
-
-      res.sendStatus(200);
-    });
-
-    // Btminer Restart Status -> used after changing mining pools
-    app.get('/cgi-bin/luci/admin/status/btminerstatus/restart', (_req, res) => {
-      res.sendStatus(200);
-    });
-
-    // System Reboot
-    app.get('/cgi-bin/luci/admin/system/reboot', (_req, res) => {
-      res.send('token: reboot-token');
-    });
-    app.post('/cgi-bin/luci/admin/system/reboot/call', (_req, res) => {
-      res.sendStatus(200);
-    });
-
-    // Power Mode
-    app.post('/cgi-bin/luci/admin/network/btminer/power', (req, res) => {
-      if (req.body) {
-        const powerModeNum = req.body['cbid.btminer.default.miner_type'];
-        if (powerModeNum >= 0) {
-          if (powerModeNum === 0) {
-            miner.powerMode = PowerMode.Low;
-          }
-
-          if (powerModeNum === 1) {
-            miner.powerMode = PowerMode.Normal;
-          }
-
-          if (powerModeNum === 2) {
-            miner.powerMode = PowerMode.High;
-          }
-        }
-      }
-
-      res.sendStatus(200);
-    });
-    app.get('/cgi-bin/luci/admin/network/btminer/power', (_req, res) => {
-      let powerModeNum: number;
-      switch (miner.powerMode) {
-        case PowerMode.Low:
-          powerModeNum = 0;
-          break;
-        case PowerMode.Normal:
-          powerModeNum = 1;
-          break;
-        case PowerMode.High:
-          powerModeNum = 2;
-          break;
-        default:
-          powerModeNum = 1;
-      }
-
-      res.send(`
-          <input type="text" name="token" value="power-token"/>     
-          
-          <form action="/cgi-bin/luci/admin/network/btminer/power" method="post">
-            <input type="text" name="cbid.btminer.default.miner_type" value="${powerModeNum}"/>
-          </form>
-          
-          <input type="checkbox" class="cbi-input-radio" value="${powerModeNum}"
-             checked />       
-        `);
-    });
+    // Register Luci Commands
+    registerCommands(app, miner);
 
     this.server = https.createServer({
       cert,
@@ -187,7 +95,7 @@ class LuciServer {
 
   public async start() {
     return new Promise<void>((resolve) => {
-      this.server.listen(443, '0.0.0.0', () => {
+      this.server.listen(this.httpsPort, '0.0.0.0', () => {
         http
           .createServer((req, res) => {
             res.writeHead(301, {
@@ -195,13 +103,14 @@ class LuciServer {
             });
             res.end();
           })
-          .listen(80);
+          .listen(this.httpPort);
 
-        consola.info(`Luci interface up and running on port 443`);
+        consola.info(`Luci interface up and running on ports ${this.httpPort},${this.httpsPort}`);
         resolve();
       });
     });
   }
 }
 
+export { LuciServerOptions };
 export default LuciServer;

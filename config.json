@@ -1,6 +1,14 @@
 {
-  "tcpServer": {
-    "port": 4028
+  "servers": {
+    "btminer": {
+      "port": 4028
+    },
+    "luci": {
+      "port": 80
+    },
+    "config": {
+      "port": 4028
+    }
   },
   "commandsControl": {
     "syntheticDelay": 5000

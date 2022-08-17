@@ -1,18 +1,18 @@
 import net from 'node:net';
 import consola from 'consola';
-import handleTCPCommand from './tcp-cmd-handler.js';
-import Miner from './miner.js';
+import Miner from '../miner';
+import { handleCommand } from '../commands/btminer.js';
 
-interface TcpServerOptions {
+interface BtminerServerOptions {
   port: number;
 }
 
-class TcpServer {
+class BtminerServer {
   private server: net.Server;
 
   private readonly port: number = 4028;
 
-  constructor(miner: Miner, options: Partial<TcpServerOptions> = {}) {
+  constructor(miner: Miner, options: Partial<BtminerServerOptions> = {}) {
     if (options.port) {
       this.port = options.port;
     }
@@ -23,7 +23,7 @@ class TcpServer {
           const dataObj = JSON.parse(data.toString());
           const cmd = dataObj.command ?? dataObj.cmd;
 
-          const resultData = await handleTCPCommand(miner, cmd);
+          const resultData = await handleCommand(miner, cmd);
           if (resultData) {
             c.write(JSON.stringify(resultData));
             c.end();
@@ -57,5 +57,5 @@ class TcpServer {
   }
 }
 
-export { TcpServerOptions };
-export default TcpServer;
+export { BtminerServerOptions };
+export default BtminerServer;

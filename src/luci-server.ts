@@ -197,7 +197,7 @@ class LuciServer {
           })
           .listen(80);
 
-        consola.info(`Luci interface is up`);
+        consola.info(`Luci interface up and running on port 443`);
         resolve();
       });
     });

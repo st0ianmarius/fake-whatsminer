@@ -24,7 +24,7 @@ class ConfigServer {
   public async start() {
     return new Promise<void>((resolve) => {
       this.server.listen(this.port, () => {
-        consola.info(`Config server bound on port ${this.port}`);
+        consola.info(`Miner config server up and running on port ${this.port}`);
         resolve();
       });
     });

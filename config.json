@@ -10,29 +10,6 @@
       "port": 9000
     }
   },
-  "commandsControl": {
-    "syntheticDelay": 5000,
-    "commands": [
-      {
-        "cmd": "Suspend",
-        "options": {
-          "keepUnitRunning": false
-        }
-      },
-      {
-        "cmd": "Resume",
-        "options": {
-          "keepUnitSuspended": false
-        }
-      },
-      {
-        "cmd": "Reboot",
-        "options": {
-          "sleepFor": 10
-        }
-      }
-    ]
-  },
   "miner": {
     "model": "M30S+",
     "mac": "90-FC-D5-65-47-CD",

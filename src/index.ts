@@ -11,12 +11,6 @@ consola.info(
   `WhatsMiner ${miner.model} | MAC: ${miner.mac} | Credentials: ${miner.credentials.username}:${miner.credentials.password}`
 );
 
-if (config.commandsControl.syntheticDelay > 0) {
-  consola.info(
-    `Commands are using a synthetic delay of ${config.commandsControl.syntheticDelay}ms`
-  );
-}
-
 // Btminer interface
 const btminerServer = new BtminerServer(miner, config.servers.btminer);
 await btminerServer.start();

@@ -168,7 +168,6 @@ const powerOnMiner = async (miner: Miner) => {
 };
 
 const powerOffMiner = async (miner: Miner) => {
-  // eslint-disable-next-line no-negated-condition
   if (!miner.isSuspended) {
     miner.isSuspended = true;
     consola.success('Miner compute has been suspended');

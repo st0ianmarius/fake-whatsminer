@@ -13,6 +13,8 @@
   "rules": {
     "no-unused-vars": "off",
     "dot-notation": "off",
-    "no-bitwise": "off"
+    "no-bitwise": "off",
+    "max-depth": "off",
+    "no-negated-condition": "off"
   }
 }

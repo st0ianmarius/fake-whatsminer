@@ -1,4 +1,4 @@
-import { App } from '@tinyhttp/app';
+import fastify, { FastifyInstance } from 'fastify';
 import consola from 'consola';
 import Miner from '../miner';
 
@@ -7,7 +7,7 @@ interface ConfigServerOptions {
 }
 
 class Config {
-  private server: App;
+  private server: FastifyInstance;
 
   private readonly port: number = 9000;
 
@@ -16,16 +16,12 @@ class Config {
       this.port = options.port;
     }
 
-    this.server = new App();
+    this.server = fastify();
   }
 
   public async start() {
-    return new Promise<void>((resolve) => {
-      this.server.listen(this.port, () => {
-        consola.info(`Miner config server up and running on port ${this.port}`);
-        resolve();
-      });
-    });
+    const addr = await this.server.listen({ port: this.port });
+    consola.success(`Config Server is now listening on ${addr}`);
   }
 }
 

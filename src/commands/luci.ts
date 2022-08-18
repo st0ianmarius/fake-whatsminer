@@ -1,4 +1,5 @@
-import { App } from '@tinyhttp/app';
+import { FastifyInstance } from 'fastify';
+import consola from 'consola';
 import { createHash } from 'node:crypto';
 import Miner, { PowerMode } from '../miner.js';
 
@@ -7,7 +8,7 @@ const createAuthCookieHash = (miner: Miner) =>
     .update(miner.credentials.username + miner.credentials.password)
     .digest('hex');
 
-const registerCommands = (app: App, miner: Miner) => {
+const registerCommands = (app: FastifyInstance, miner: Miner) => {
   // Detect
   app.get('/cgi-bin/luci/admin/network/iface_status/lan', (_req, res) => {
     res.send([
@@ -29,17 +30,21 @@ const registerCommands = (app: App, miner: Miner) => {
   });
 
   // Auth
-  app.post('/cgi-bin/luci', (req, res) => {
-    if (
-      req.body.luci_username === miner.credentials.username &&
-      req.body.luci_password === miner.credentials.password
-    ) {
-      res.cookie('auth', createAuthCookieHash(miner));
-      res.sendStatus(200);
-    } else {
-      res.status(403).send('Invalid username');
+  app.post<{ Body: { luci_username: string; luci_password: string } }>(
+    '/cgi-bin/luci',
+    (req, reply) => {
+      if (
+        req.body &&
+        req.body.luci_username === miner.credentials.username &&
+        req.body.luci_password === miner.credentials.password
+      ) {
+        reply.cookie('auth', createAuthCookieHash(miner));
+        reply.code(200).send();
+      } else {
+        reply.code(403).send('Invalid username');
+      }
     }
-  });
+  );
 
   // Config
   app.get('/cgi-bin/luci/admin/network/btminer', (_req, res) => {
@@ -62,14 +67,15 @@ const registerCommands = (app: App, miner: Miner) => {
             .join('')}
         `);
   });
-  app.post('/cgi-bin/luci/admin/network/btminer', (req, res) => {
+  app.post('/cgi-bin/luci/admin/network/btminer', (req, reply) => {
     if (req.body) {
+      const body = req.body as any;
       for (let i = 0; i < 3; i++) {
-        if (req.body[`cbid.pools.default.pool${i + 1}url`]) {
+        if (body[`cbid.pools.default.pool${i + 1}url`]) {
           miner.pools[i] = {
-            url: req.body[`cbid.pools.default.pool${i + 1}url`],
-            user: req.body[`cbid.pools.default.pool${i + 1}user`],
-            password: req.body[`cbid.pools.default.pool${i + 1}pw`],
+            url: body[`cbid.pools.default.pool${i + 1}url`],
+            user: body[`cbid.pools.default.pool${i + 1}user`],
+            password: body[`cbid.pools.default.pool${i + 1}pw`],
           };
         } else {
           miner.pools.splice(i, 1);
@@ -77,44 +83,55 @@ const registerCommands = (app: App, miner: Miner) => {
       }
     }
 
-    res.sendStatus(200);
+    reply.code(200).send();
   });
 
   // Btminer Restart Status -> used after changing mining pools
-  app.get('/cgi-bin/luci/admin/status/btminerstatus/restart', (_req, res) => {
-    res.sendStatus(200);
+  app.get('/cgi-bin/luci/admin/status/btminerstatus/restart', (_req, reply) => {
+    reply.code(200).send();
   });
 
   // System Reboot
-  app.get('/cgi-bin/luci/admin/system/reboot', (_req, res) => {
-    res.send('token: reboot-token');
-  });
-  app.post('/cgi-bin/luci/admin/system/reboot/call', (_req, res) => {
-    res.sendStatus(200);
+  app.get('/cgi-bin/luci/admin/system/reboot', (_req) => 'token: reboot-token');
+  app.post('/cgi-bin/luci/admin/system/reboot/call', (_req, reply) => {
+    reply.code(200).send();
   });
 
   // Power Mode
-  app.post('/cgi-bin/luci/admin/network/btminer/power', (req, res) => {
+  app.post('/cgi-bin/luci/admin/network/btminer/power', (req, reply) => {
     if (req.body) {
-      const powerModeNum = req.body['cbid.btminer.default.miner_type'];
+      const body = req.body as any;
+      const powerModeNum = body['cbid.btminer.default.miner_type'];
       if (powerModeNum >= 0) {
+        let newPowerMode: PowerMode | null = null;
         if (powerModeNum === 0) {
-          miner.powerMode = PowerMode.Low;
+          newPowerMode = PowerMode.Low;
         }
 
         if (powerModeNum === 1) {
-          miner.powerMode = PowerMode.Normal;
+          newPowerMode = PowerMode.Normal;
         }
 
         if (powerModeNum === 2) {
-          miner.powerMode = PowerMode.High;
+          newPowerMode = PowerMode.High;
+        }
+
+        if (newPowerMode) {
+          if (newPowerMode !== miner.powerMode) {
+            miner.powerMode = newPowerMode;
+            consola.info(`Miner power mode set to ${miner.powerMode}`);
+          } else {
+            consola.warn('Miner power mode is the same');
+          }
+        } else {
+          consola.error(`Received invalid power mode ${powerModeNum} on Luci`);
         }
       }
     }
 
-    res.sendStatus(200);
+    reply.code(200).send();
   });
-  app.get('/cgi-bin/luci/admin/network/btminer/power', (_req, res) => {
+  app.get('/cgi-bin/luci/admin/network/btminer/power', () => {
     let powerModeNum: number;
     switch (miner.powerMode) {
       case PowerMode.Low:
@@ -130,7 +147,7 @@ const registerCommands = (app: App, miner: Miner) => {
         powerModeNum = 1;
     }
 
-    res.send(`
+    return `
           <input type="text" name="token" value="power-token"/>     
           
           <form action="/cgi-bin/luci/admin/network/btminer/power" method="post">
@@ -139,7 +156,7 @@ const registerCommands = (app: App, miner: Miner) => {
           
           <input type="checkbox" class="cbi-input-radio" value="${powerModeNum}"
              checked />       
-        `);
+        `;
   });
 };
 

@@ -1,8 +1,7 @@
-import https from 'node:https';
-import http from 'node:http';
-import { App } from '@tinyhttp/app';
-import bodyParser from 'body-parser';
-import cookieParser from 'cookie-parser';
+import fastify, { FastifyInstance } from 'fastify';
+import fastifyCookie from '@fastify/cookie';
+import fastifyFormBody from '@fastify/formbody';
+import fastifyHttpsRedirect from 'fastify-https-redirect';
 import consola from 'consola';
 import Miner from '../miner.js';
 import { createAuthCookieHash, registerCommands } from '../commands/luci.js';
@@ -65,7 +64,7 @@ interface LuciServerOptions {
 }
 
 class LuciServer {
-  private server: https.Server;
+  private server: FastifyInstance;
 
   private readonly port: number = 443;
 
@@ -74,54 +73,41 @@ class LuciServer {
       this.port = options.port;
     }
 
-    const app = new App({
-      settings: {
-        networkExtensions: true,
+    this.server = fastify({
+      https: {
+        cert,
+        key: certKey,
+        rejectUnauthorized: false,
       },
     });
+    this.server.register(fastifyHttpsRedirect);
+    this.server.register(fastifyCookie);
+    this.server.register(fastifyFormBody);
 
-    app.use(bodyParser.urlencoded({ extended: true }));
-    app.use(cookieParser() as any);
-
-    app.use((req, res, next) => {
+    this.server.addHook('preHandler', (req, reply, done) => {
       if (req.cookies['auth']) {
         const cookieHash = createAuthCookieHash(miner);
         if (req.cookies['auth'] === cookieHash) {
-          next();
+          done();
         } else {
-          res.status(401).send('Unauthorized');
+          reply.code(401).send();
         }
       } else {
-        next();
+        done();
       }
     });
-    // Register Luci Commands
-    registerCommands(app, miner);
 
-    this.server = https.createServer({
-      cert,
-      key: certKey,
-      rejectUnauthorized: false,
-    });
-    this.server.on('request', app.attach);
+    // Register Luci Commands
+    registerCommands(this.server, miner);
   }
 
   public async start() {
-    return new Promise<void>((resolve) => {
-      this.server.listen(this.port, '0.0.0.0', () => {
-        http
-          .createServer((req, res) => {
-            res.writeHead(301, {
-              Location: 'https://' + req.headers.host + req.url,
-            });
-            res.end();
-          })
-          .listen(80);
-
-        consola.info(`Luci interface up and running on port ${this.port}`);
-        resolve();
-      });
+    const addr = await this.server.listen({
+      port: this.port,
+      host: '0.0.0.0',
     });
+
+    consola.success(`Luci Server is now listening on ${addr}`);
   }
 }
 

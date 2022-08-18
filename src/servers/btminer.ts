@@ -100,7 +100,9 @@ class BtminerServer {
   public async start() {
     return new Promise<void>((resolve) => {
       this.server.listen(this.port, () => {
-        consola.info(`Btminer interface up and running on port ${this.port}`);
+        consola.success(
+          `Btminer Interface is now listening over TCP on port ${this.port}`
+        );
         resolve();
       });
     });

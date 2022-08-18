@@ -8,7 +8,7 @@ import ConfigServer from './servers/config.js';
 
 const miner = new Miner(config.miner);
 consola.info(
-  `WhatsMiner ${miner.model} | MAC: ${miner.mac} | API: ${miner.apiVersion} | FW: ${miner.firmwareVersion}`
+  `WhatsMiner ${miner.model} | MAC: ${miner.mac} | Credentials: ${miner.credentials.username}:${miner.credentials.password}`
 );
 
 if (config.commandsControl.syntheticDelay > 0) {

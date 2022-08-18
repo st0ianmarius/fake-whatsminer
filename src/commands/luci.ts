@@ -1,11 +1,44 @@
 import { App } from '@tinyhttp/app';
+import { createHash } from 'node:crypto';
 import Miner, { PowerMode } from '../miner.js';
 
+const createAuthCookieHash = (miner: Miner) =>
+  createHash('sha256')
+    .update(miner.credentials.username + miner.credentials.password)
+    .digest('hex');
+
 const registerCommands = (app: App, miner: Miner) => {
+  // Detect
+  app.get('/cgi-bin/luci/admin/network/iface_status/lan', (_req, res) => {
+    res.send([
+      {
+        macaddr: miner.mac,
+      },
+    ]);
+  });
+  app.get('/cgi-bin/luci/admin/status/overview', (_req, res) => {
+    res.send(
+      `
+        <table>
+          <tr>
+            <td>${miner.model}</td>
+          </tr>
+        </table>
+        `
+    );
+  });
+
   // Auth
-  app.post('/cgi-bin/luci', (_req, res) => {
-    res.cookie('auth', '1');
-    res.sendStatus(200);
+  app.post('/cgi-bin/luci', (req, res) => {
+    if (
+      req.body.luci_username === miner.credentials.username &&
+      req.body.luci_password === miner.credentials.password
+    ) {
+      res.cookie('auth', createAuthCookieHash(miner));
+      res.sendStatus(200);
+    } else {
+      res.status(403).send('Invalid username');
+    }
   });
 
   // Config
@@ -110,4 +143,4 @@ const registerCommands = (app: App, miner: Miner) => {
   });
 };
 
-export { registerCommands };
+export { registerCommands, createAuthCookieHash };

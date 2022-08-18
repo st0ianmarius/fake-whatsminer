@@ -45,26 +45,29 @@ class BtminerServer {
                 Buffer.from([])
               );
               decipher.setAutoPadding(false);
+
               let rawMsg = Buffer.concat([
                 decipher.update(dataObj.data, 'base64'),
                 decipher.final(),
               ]).toString();
 
-              // Remove backspaces
-              while (rawMsg.indexOf('\b') !== -1) {
-                // eslint-disable-next-line no-control-regex
-                rawMsg = rawMsg.replace(/.?\x08/, ' '); // 0x08 is the ASCII code for \b
+              if (rawMsg) {
+                // Remove backspaces
+                while (rawMsg.indexOf('\b') !== -1) {
+                  // eslint-disable-next-line no-control-regex
+                  rawMsg = rawMsg.replace(/.?\x08/, ' '); // 0x08 is the ASCII code for \b
+                }
+
+                // Remove tabs
+                rawMsg = rawMsg.replace(/\t/g, '');
+
+                // Removing backspaces, also removes the last ending '}'
+                if (!rawMsg.endsWith('}')) {
+                  rawMsg += '}';
+                }
+
+                msgData = JSON.parse(rawMsg);
               }
-
-              // Remove tabs
-              rawMsg = rawMsg.replace(/\t/g, '');
-
-              // Removing backspaces, also removes the last ending '}'
-              if (!rawMsg.endsWith('}')) {
-                rawMsg += '}';
-              }
-
-              msgData = JSON.parse(rawMsg);
             }
           }
 

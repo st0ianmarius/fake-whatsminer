@@ -34,8 +34,8 @@
     ]
   },
   "miner": {
-    "mac": "M30S-1",
     "model": "M30S+",
+    "mac": "90-FC-D5-65-47-CD",
     "credentials": {
       "username": "admin",
       "password": "admin"
@@ -46,7 +46,7 @@
       "min": 3000,
       "max": 3700
     },
-    "powerMode": "Low",
+    "powerMode": "Normal",
     "envTemp": 60,
     "psu": {
       "name": "P221B",

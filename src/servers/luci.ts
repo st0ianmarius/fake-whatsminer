@@ -1,9 +1,11 @@
 import https from 'node:https';
+import http from 'node:http';
 import { App } from '@tinyhttp/app';
 import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
 import consola from 'consola';
 import Miner from '../miner.js';
-import { registerCommands } from '../commands/luci.js';
+import { createAuthCookieHash, registerCommands } from '../commands/luci.js';
 
 const cert = `
 -----BEGIN CERTIFICATE-----
@@ -79,7 +81,20 @@ class LuciServer {
     });
 
     app.use(bodyParser.urlencoded({ extended: true }));
+    app.use(cookieParser() as any);
 
+    app.use((req, res, next) => {
+      if (req.cookies['auth']) {
+        const cookieHash = createAuthCookieHash(miner);
+        if (req.cookies['auth'] === cookieHash) {
+          next();
+        } else {
+          res.status(401).send('Unauthorized');
+        }
+      } else {
+        next();
+      }
+    });
     // Register Luci Commands
     registerCommands(app, miner);
 
@@ -94,6 +109,15 @@ class LuciServer {
   public async start() {
     return new Promise<void>((resolve) => {
       this.server.listen(this.port, '0.0.0.0', () => {
+        http
+          .createServer((req, res) => {
+            res.writeHead(301, {
+              Location: 'https://' + req.headers.host + req.url,
+            });
+            res.end();
+          })
+          .listen(80);
+
         consola.info(`Luci interface up and running on port ${this.port}`);
         resolve();
       });

@@ -7,6 +7,10 @@ import { ConfigServerOptions } from './servers/config';
 
 interface CommandsControl {
   syntheticDelay: number;
+  commands: {
+    cmd: string;
+    options: Record<string, any>;
+  }[];
 }
 
 interface Config {

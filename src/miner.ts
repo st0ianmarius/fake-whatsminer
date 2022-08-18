@@ -111,6 +111,8 @@ class Miner {
 
   isSuspended: boolean = false;
 
+  sleepUntil: Date | null = null;
+
   isWarmingUp: boolean = true;
   stopWarmUpAfter: number = 5; // In minutes
 

@@ -11,7 +11,27 @@
     }
   },
   "commandsControl": {
-    "syntheticDelay": 5000
+    "syntheticDelay": 5000,
+    "commands": [
+      {
+        "cmd": "Suspend",
+        "options": {
+          "keepUnitRunning": false
+        }
+      },
+      {
+        "cmd": "Resume",
+        "options": {
+          "keepUnitSuspended": false
+        }
+      },
+      {
+        "cmd": "Reboot",
+        "options": {
+          "sleepFor": 10
+        }
+      }
+    ]
   },
   "miner": {
     "mac": "M30S-1",

@@ -36,6 +36,10 @@
   "miner": {
     "mac": "M30S-1",
     "model": "M30S+",
+    "credentials": {
+      "username": "admin",
+      "password": "admin"
+    },
     "apiVersion": "2.0.4",
     "firmwareVersion": "20220125.13.Rel",
     "powerDraw": {

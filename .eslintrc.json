@@ -12,6 +12,7 @@
   "plugins": ["@typescript-eslint"],
   "rules": {
     "no-unused-vars": "off",
-    "dot-notation": "off"
+    "dot-notation": "off",
+    "no-bitwise": "off"
   }
 }

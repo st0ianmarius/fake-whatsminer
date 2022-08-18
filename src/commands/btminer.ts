@@ -1,3 +1,4 @@
+import consola from 'consola';
 import Miner from '../miner.js';
 import { getUnixTime } from 'date-fns';
 
@@ -44,7 +45,7 @@ const getMinerInfo = async (miner: Miner) => ({
 
 const getStatistics = async (miner: Miner) => {
   if (miner.isSuspended) {
-    return {}
+    return {};
   }
 
   const minerStats = miner.getStats();
@@ -150,7 +151,12 @@ const getVersionInfo = async (miner: Miner) => ({
 });
 
 const powerOnMiner = async (miner: Miner) => {
-  miner.isSuspended = false;
+  if (miner.isSuspended) {
+    miner.isSuspended = false;
+    consola.success('Miner compute has been resumed');
+  } else {
+    consola.warn('Miner compute is already enabled');
+  }
 
   return {
     STATUS: MsgStatus.OK,
@@ -162,7 +168,13 @@ const powerOnMiner = async (miner: Miner) => {
 };
 
 const powerOffMiner = async (miner: Miner) => {
-  miner.isSuspended = true;
+  // eslint-disable-next-line no-negated-condition
+  if (!miner.isSuspended) {
+    miner.isSuspended = true;
+    consola.success('Miner compute has been suspended');
+  } else {
+    consola.warn('Miner compute is already suspended');
+  }
 
   return {
     STATUS: MsgStatus.OK,
@@ -173,12 +185,25 @@ const powerOffMiner = async (miner: Miner) => {
   };
 };
 
+const getToken = async () => ({
+  STATUS: MsgStatus.OK,
+  Code: MsgCode.OK,
+  When: getUnixTime(new Date()),
+  Description: '',
+  Msg: {
+    time: 'time',
+    salt: 'salt',
+    newsalt: 'salt',
+  },
+});
+
 const commands = new Map<
   string,
   (_miner: Miner, _payload?: unknown) => Promise<unknown>
 >([
   ['summary+devdetails', getCheckData],
   ['summary+devs+devdetails+pools', getStatistics],
+  ['get_token', getToken],
   ['get_miner_info', getMinerInfo],
   ['get_psu', getPSUInfo],
   ['get_version', getVersionInfo],

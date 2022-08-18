@@ -27,6 +27,8 @@ interface MinerOptions {
   mac: string;
   model: string;
 
+  credentials: MinerCredentials;
+
   apiVersion: string;
   firmwareVersion: string;
 
@@ -87,6 +89,11 @@ interface MinerPSU {
   swVersion: string;
 }
 
+interface MinerCredentials {
+  username: string;
+  password: string;
+}
+
 const getRangeOrNumberValue = (value: RangeOrNumber): number => {
   if (typeof value === 'number') {
     return value;
@@ -98,6 +105,8 @@ const getRangeOrNumberValue = (value: RangeOrNumber): number => {
 class Miner {
   mac: string;
   model: string;
+
+  credentials: MinerCredentials;
 
   apiVersion: string;
   firmwareVersion: string;
@@ -125,6 +134,8 @@ class Miner {
   constructor(options: MinerOptions) {
     this.mac = options.mac;
     this.model = options.model;
+
+    this.credentials = options.credentials;
 
     this.apiVersion = options.apiVersion;
     this.firmwareVersion = options.firmwareVersion;

@@ -22,7 +22,7 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
       `
         <table>
           <tr>
-            <td>${miner.model}</td>
+            <td>WhatsMiner ${miner.model}</td>
           </tr>
         </table>
         `
@@ -81,6 +81,12 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
           miner.pools.splice(i, 1);
         }
       }
+
+      consola.info(
+        `Miner config has been updated. Pools: ${miner.pools
+          .map((p, i) => `[{${i}} ${p.url} <-> ${p.user}]`)
+          .join(' ')}`
+      );
     }
 
     reply.code(200).send();
@@ -101,8 +107,8 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
   app.post('/cgi-bin/luci/admin/network/btminer/power', (req, reply) => {
     if (req.body) {
       const body = req.body as any;
-      const powerModeNum = body['cbid.btminer.default.miner_type'];
-      if (powerModeNum >= 0) {
+      const powerModeNum = Number(body['cbid.btminer.default.miner_type']);
+      if (!Number.isNaN(powerModeNum)) {
         let newPowerMode: PowerMode | null = null;
         if (powerModeNum === 0) {
           newPowerMode = PowerMode.Low;
@@ -153,6 +159,10 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
           <form action="/cgi-bin/luci/admin/network/btminer/power" method="post">
             <input type="text" name="cbid.btminer.default.miner_type" value="${powerModeNum}"/>
           </form>
+          
+          <div class="cbi-value-title">
+            <span>Power Mode</span>
+          </div>
           
           <input type="checkbox" class="cbi-input-radio" value="${powerModeNum}"
              checked />       

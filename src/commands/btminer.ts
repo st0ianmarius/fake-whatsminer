@@ -43,6 +43,10 @@ const getMinerInfo = async (miner: Miner) => ({
 });
 
 const getStatistics = async (miner: Miner) => {
+  if (miner.isSuspended) {
+    return {}
+  }
+
   const minerStats = miner.getStats();
   const summary = [
     {

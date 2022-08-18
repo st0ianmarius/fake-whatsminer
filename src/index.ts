@@ -55,5 +55,7 @@ setInterval(() => {
     consola.info(
       `WhatsMiner ${miner.model} | Power Mode: ${minerStats.powerMode} | Power Draw: ${minerStats.powerDraw}W | Hashrate: ${hashrate} TH/s | Avg. Temp: ${temperature}°C | Env Temp: ${minerStats.envTemp}°C | Fan Speed: ${fanSpeedIn} RPM -> ${fanSpeedOut} RPM`
     );
+  } else {
+    consola.info(`WhatsMiner ${miner.model} is suspended`);
   }
 }, ms('30s'));

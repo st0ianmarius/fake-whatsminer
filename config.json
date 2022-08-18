@@ -4,10 +4,10 @@
       "port": 4028
     },
     "luci": {
-      "port": 80
+      "port": 443
     },
     "config": {
-      "port": 4028
+      "port": 9000
     }
   },
   "commandsControl": {
@@ -53,8 +53,8 @@
       {
         "id": 0,
         "hashrate": {
-          "min": 12,
-          "max": 15
+          "min": 25,
+          "max": 30
         },
         "temperature": {
           "min": 60,
@@ -68,8 +68,8 @@
       {
         "id": 1,
         "hashrate": {
-          "min": 12,
-          "max": 15
+          "min": 25,
+          "max": 30
         },
         "temperature": {
           "min": 60,
@@ -83,8 +83,8 @@
       {
         "id": 2,
         "hashrate": {
-          "min": 12,
-          "max": 15
+          "min": 25,
+          "max": 30
         },
         "temperature": {
           "min": 60,

@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import env from './env.js';
 import { MinerOptions } from './miner.js';
 import { BtminerServerOptions } from './servers/btminer';
 import { LuciServerOptions } from './servers/luci';
@@ -18,9 +19,7 @@ interface Config {
   commandsControl: CommandsControl;
 }
 
-const configPath = process.env['CONFIG'] ?? './config.json';
-
-const config: Config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+const config: Config = JSON.parse(fs.readFileSync(env.CONFIG, 'utf8'));
 
 export { Config };
 export default config;

@@ -1,5 +1,4 @@
 import https from 'node:https';
-import http from 'node:http';
 import { App } from '@tinyhttp/app';
 import bodyParser from 'body-parser';
 import consola from 'consola';
@@ -66,12 +65,11 @@ interface LuciServerOptions {
 class LuciServer {
   private server: https.Server;
 
-  private readonly httpPort: number = 4028;
-  private readonly httpsPort: number = 443;
+  private readonly port: number = 443;
 
   constructor(miner: Miner, options: Partial<LuciServerOptions> = {}) {
     if (options.port) {
-      this.httpPort = options.port;
+      this.port = options.port;
     }
 
     const app = new App({
@@ -95,17 +93,8 @@ class LuciServer {
 
   public async start() {
     return new Promise<void>((resolve) => {
-      this.server.listen(this.httpsPort, '0.0.0.0', () => {
-        http
-          .createServer((req, res) => {
-            res.writeHead(301, {
-              Location: 'https://' + req.headers.host + req.url,
-            });
-            res.end();
-          })
-          .listen(this.httpPort);
-
-        consola.info(`Luci interface up and running on ports ${this.httpPort},${this.httpsPort}`);
+      this.server.listen(this.port, '0.0.0.0', () => {
+        consola.info(`Luci interface up and running on port ${this.port}`);
         resolve();
       });
     });

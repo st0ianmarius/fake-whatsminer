@@ -227,7 +227,7 @@ class Miner {
   public isInRebootMode() {
     let dead = false;
     if (this.rebootedAt && this.deadTimeBetweenRestarts > 0) {
-      const onlineAt = add(new Date(), {
+      const onlineAt = add(this.rebootedAt, {
         minutes: this.deadTimeBetweenRestarts,
       });
       if (onlineAt.getTime() > new Date().getTime()) {

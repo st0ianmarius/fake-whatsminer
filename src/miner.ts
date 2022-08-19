@@ -1,4 +1,5 @@
 import env from './env.js';
+import consola from 'consola';
 import { add } from 'date-fns';
 
 interface Range {
@@ -226,13 +227,14 @@ class Miner {
   public isInRebootMode() {
     let dead = false;
     if (this.rebootedAt && this.deadTimeBetweenRestarts > 0) {
-      const onlineAt = add(new Date(), { minutes: this.deadTimeBetweenRestarts });
-      if (
-        onlineAt.getTime() > new Date().getTime()
-      ) {
+      const onlineAt = add(new Date(), {
+        minutes: this.deadTimeBetweenRestarts,
+      });
+      if (onlineAt.getTime() > new Date().getTime()) {
         dead = true;
       } else {
         this.rebootedAt = null;
+        consola.info('Miner back online after restart');
       }
     }
 

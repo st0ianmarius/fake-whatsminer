@@ -13,6 +13,12 @@ consola.info(
   `WhatsMiner ${miner.model} | MAC: ${miner.mac} | Credentials: ${miner.credentials.username}:${miner.credentials.password}`
 );
 
+if (config.miner.deadTimeBetweenRestarts) {
+  consola.info(
+    `Miner dead time between restarts is set at ${config.miner.deadTimeBetweenRestarts} minutes`
+  );
+}
+
 // Btminer interface
 const btminerServer = new BtminerServer(miner, config.servers.btminer);
 await btminerServer.start();

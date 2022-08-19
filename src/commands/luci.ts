@@ -104,7 +104,7 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
     consola.success(
       `Miner has been restarted.${
         miner.deadTimeBetweenRestarts > 0
-          ? ` Becoming unresponsive for ${miner.deadTimeBetweenRestarts} minutes`
+          ? ` Will act dead for ${miner.deadTimeBetweenRestarts} minutes`
           : ''
       }`
     );

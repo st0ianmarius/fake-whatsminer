@@ -31,6 +31,7 @@ COPY config.json ./config.json
 
 # Expose default ports
 EXPOSE 4028
+EXPOSE 80
 EXPOSE 443
 EXPOSE 9000
 

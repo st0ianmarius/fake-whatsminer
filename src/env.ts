@@ -8,11 +8,15 @@ const schema = {
       type: 'string',
       default: './config.json',
     },
+    MINER_MAC: {
+      type: 'string',
+    },
   },
 };
 
 interface Env {
   CONFIG: string;
+  MINER_MAC: string;
 }
 
 const envConfig = envSchema<Env>({

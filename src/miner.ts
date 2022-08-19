@@ -1,3 +1,5 @@
+import env from './env';
+
 interface Range {
   min: number;
   max: number;
@@ -133,6 +135,10 @@ class Miner {
 
   constructor(options: MinerOptions) {
     this.mac = options.mac;
+    if (env.MINER_MAC) {
+      this.mac = env.MINER_MAC;
+    }
+
     this.model = options.model;
 
     this.credentials = options.credentials;
@@ -198,5 +204,5 @@ class Miner {
   }
 }
 
-export { PowerMode, MinerOptions };
+export { PowerMode, MinerOptions, RangeOrNumber, MiningPool, Hashboard };
 export default Miner;

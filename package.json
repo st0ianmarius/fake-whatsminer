@@ -8,8 +8,7 @@
     "build": "tsc -p tsconfig.json",
     "pretty": "prettier --write src/**/*.ts",
     "lint": "eslint src/**/*.ts",
-    "lint-fix": "eslint src/**/*.ts --fix",
-    "build-docker-img": "docker build -t fake-whatsminer:0.1.0 ."
+    "lint-fix": "eslint src/**/*.ts --fix"
   },
   "devDependencies": {
     "@types/ms": "^0.7.31",

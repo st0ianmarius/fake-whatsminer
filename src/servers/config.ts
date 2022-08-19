@@ -41,6 +41,8 @@ class Config {
 
     this.server = fastify();
 
+    this.server.get('/stats', () => miner.getStats());
+
     this.server.post('/kill', (_req, reply) => {
       consola.info('Shutting down in 5 seconds');
 
@@ -52,58 +54,55 @@ class Config {
       reply.code(200).send();
     });
 
-    this.server.post<{ Body: MinerConfigBody }>(
-      '/config',
-      async (req, reply) => {
-        if (req.body) {
-          const {
-            envTemp,
-            powerMode,
-            powerDraw,
-            isSuspended,
-            isWarmingUp,
-            errorCodes,
-            pools,
-            hashboards,
-          } = req.body;
+    this.server.post<{ Body: MinerConfigBody }>('/config', async (req) => {
+      if (req.body) {
+        const {
+          envTemp,
+          powerMode,
+          powerDraw,
+          isSuspended,
+          isWarmingUp,
+          errorCodes,
+          pools,
+          hashboards,
+        } = req.body;
 
-          if (envTemp) {
-            miner.envTemp = envTemp;
-          }
-
-          if (powerMode) {
-            miner.powerMode = powerMode;
-          }
-
-          if (powerDraw) {
-            miner.powerDraw = powerDraw;
-          }
-
-          if (is.boolean(isSuspended)) {
-            miner.isSuspended = isSuspended;
-          }
-
-          if (is.boolean(isWarmingUp)) {
-            miner.isWarmingUp = isWarmingUp;
-          }
-
-          if (is.array(errorCodes)) {
-            miner.errorCodes = errorCodes;
-          }
-
-          if (is.array(pools)) {
-            miner.pools = pools;
-          }
-
-          // You have to provide all hashboards if you want to modify them
-          if (is.array(hashboards) && hashboards.length === 3) {
-            miner.hashboards = hashboards;
-          }
+        if (envTemp) {
+          miner.envTemp = envTemp;
         }
 
-        reply.code(200).send();
+        if (powerMode) {
+          miner.powerMode = powerMode;
+        }
+
+        if (powerDraw) {
+          miner.powerDraw = powerDraw;
+        }
+
+        if (is.boolean(isSuspended)) {
+          miner.isSuspended = isSuspended;
+        }
+
+        if (is.boolean(isWarmingUp)) {
+          miner.isWarmingUp = isWarmingUp;
+        }
+
+        if (is.array(errorCodes)) {
+          miner.errorCodes = errorCodes;
+        }
+
+        if (is.array(pools)) {
+          miner.pools = pools;
+        }
+
+        // You have to provide all hashboards if you want to modify them
+        if (is.array(hashboards) && hashboards.length === 3) {
+          miner.hashboards = hashboards;
+        }
       }
-    );
+
+      return miner.getStats();
+    });
   }
 
   public async start() {

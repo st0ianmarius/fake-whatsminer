@@ -107,7 +107,7 @@ class Config {
   }
 
   public async start() {
-    const addr = await this.server.listen({ port: this.port });
+    const addr = await this.server.listen({ port: this.port, host: '0.0.0.0' });
     consola.success(`Config Server is now listening on ${addr}`);
   }
 }

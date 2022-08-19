@@ -1,10 +1,12 @@
 import consola from 'consola';
 import ms from 'ms';
-import config from './config.js';
+import config, { version } from './config.js';
 import Miner from './miner.js';
 import BtminerServer from './servers/btminer.js';
 import LuciServer from './servers/luci.js';
 import ConfigServer from './servers/config.js';
+
+consola.info(`Running on version ${version}`);
 
 const miner = new Miner(config.miner);
 consola.info(

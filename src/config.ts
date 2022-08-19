@@ -15,6 +15,7 @@ interface Config {
 }
 
 const config: Config = JSON.parse(fs.readFileSync(env.CONFIG, 'utf8'));
+const { version } = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
-export { Config };
+export { Config, version };
 export default config;

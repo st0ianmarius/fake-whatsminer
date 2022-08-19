@@ -16,6 +16,8 @@ FROM node:lts-alpine
 
 WORKDIR /usr/src/app
 
+ENV NODE_ENV=production
+
 # Install dependencies
 COPY .npmrc ./
 COPY package.json ./

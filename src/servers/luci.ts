@@ -1,7 +1,7 @@
+import http from 'node:http';
 import fastify, { FastifyInstance } from 'fastify';
 import fastifyCookie from '@fastify/cookie';
 import fastifyFormBody from '@fastify/formbody';
-import fastifyHttpsRedirect from 'fastify-https-redirect';
 import consola from 'consola';
 import Miner from '../miner.js';
 import { createAuthCookieHash, registerCommands } from '../commands/luci.js';
@@ -64,7 +64,7 @@ interface LuciServerOptions {
 }
 
 class LuciServer {
-  private server: FastifyInstance;
+  private readonly server: FastifyInstance;
 
   private readonly port: number = 443;
 
@@ -80,7 +80,36 @@ class LuciServer {
         rejectUnauthorized: false,
       },
     });
-    this.server.register(fastifyHttpsRedirect);
+    this.server.register((fastify, _options, next) => {
+      const server = http
+        .createServer((req, res) => {
+          const {
+            headers: { host },
+            url,
+          } = req;
+          if (host) {
+            const redirectUrl = `https://${host.split(':')[0]}:${
+              this.port
+            }${url}`;
+            res.writeHead(308, {
+              Location: redirectUrl,
+            });
+            res.end();
+          }
+        })
+        .listen(80, '0.0.0.0');
+
+      fastify.addHook('onClose', (_, done) => {
+        server.close((err) => {
+          if (err) {
+            throw err;
+          } else {
+            done();
+          }
+        });
+      });
+      next();
+    });
     this.server.register(fastifyCookie);
     this.server.register(fastifyFormBody);
 

@@ -5,10 +5,11 @@
   "exports": "./dist/index.js",
   "scripts": {
     "start": "node ./dist/index.js",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.json",
     "pretty": "prettier --write src/**/*.ts",
     "lint": "eslint src/**/*.ts",
-    "lint-fix": "eslint src/**/*.ts --fix"
+    "lint-fix": "eslint src/**/*.ts --fix",
+    "build-docker-img": "docker build -t fake-whatsminer:0.1.0 ."
   },
   "devDependencies": {
     "@types/ms": "^0.7.31",
@@ -30,7 +31,6 @@
     "date-fns": "^2.29.1",
     "env-schema": "^5.0.0",
     "fastify": "^4.5.1",
-    "fastify-https-redirect": "^1.0.4",
     "ms": "^2.1.3"
   }
 }

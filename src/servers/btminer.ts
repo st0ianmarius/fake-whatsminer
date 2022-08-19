@@ -31,59 +31,61 @@ class BtminerServer {
 
     this.server = net.createServer((c) => {
       c.on('data', async (data) => {
-        try {
-          const dataObj = JSON.parse(data.toString());
+        if (!miner.isInRebootMode()) {
+          try {
+            const dataObj = JSON.parse(data.toString());
 
-          let msgData = dataObj;
-          if (dataObj.enc) {
-            const key = this.getEncryptionKey(miner);
-            if (key) {
-              const keyBuf = Buffer.from(key, 'hex');
-              const decipher = createDecipheriv(
-                'aes-256-ecb',
-                keyBuf.slice(0, 32),
-                Buffer.from([])
-              );
-              decipher.setAutoPadding(false);
+            let msgData = dataObj;
+            if (dataObj.enc) {
+              const key = this.getEncryptionKey(miner);
+              if (key) {
+                const keyBuf = Buffer.from(key, 'hex');
+                const decipher = createDecipheriv(
+                  'aes-256-ecb',
+                  keyBuf.slice(0, 32),
+                  Buffer.from([])
+                );
+                decipher.setAutoPadding(false);
 
-              let rawMsg = Buffer.concat([
-                decipher.update(dataObj.data, 'base64'),
-                decipher.final(),
-              ]).toString();
+                let rawMsg = Buffer.concat([
+                  decipher.update(dataObj.data, 'base64'),
+                  decipher.final(),
+                ]).toString();
 
-              if (rawMsg) {
-                // Remove backspaces
-                while (rawMsg.indexOf('\b') !== -1) {
-                  // eslint-disable-next-line no-control-regex
-                  rawMsg = rawMsg.replace(/.?\x08/, ' '); // 0x08 is the ASCII code for \b
+                if (rawMsg) {
+                  // Remove backspaces
+                  while (rawMsg.indexOf('\b') !== -1) {
+                    // eslint-disable-next-line no-control-regex
+                    rawMsg = rawMsg.replace(/.?\x08/, ' '); // 0x08 is the ASCII code for \b
+                  }
+
+                  // Remove tabs
+                  rawMsg = rawMsg.replace(/\t/g, '');
+
+                  // Removing backspaces, also removes the last ending '}'
+                  if (!rawMsg.endsWith('}')) {
+                    rawMsg += '}';
+                  }
+
+                  msgData = JSON.parse(rawMsg);
                 }
-
-                // Remove tabs
-                rawMsg = rawMsg.replace(/\t/g, '');
-
-                // Removing backspaces, also removes the last ending '}'
-                if (!rawMsg.endsWith('}')) {
-                  rawMsg += '}';
-                }
-
-                msgData = JSON.parse(rawMsg);
               }
             }
-          }
 
-          const cmd = msgData.command ?? msgData.cmd;
+            const cmd = msgData.command ?? msgData.cmd;
 
-          const resultData = await handleCommand(miner, cmd);
-          if (resultData) {
-            c.write(JSON.stringify(resultData));
-            c.end();
+            const resultData = await handleCommand(miner, cmd);
+            if (resultData) {
+              c.write(JSON.stringify(resultData));
+              c.end();
+            }
+          } catch (err) {
+            c.write(
+              JSON.stringify({
+                err: (err as Error).message,
+              })
+            );
           }
-        } catch (err) {
-          c.write(
-            JSON.stringify({
-              err: (err as Error).message,
-            })
-          );
         }
       });
 

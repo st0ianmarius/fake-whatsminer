@@ -22,6 +22,8 @@ interface MinerConfigBody {
   isSuspended?: boolean;
   isWarmingUp?: boolean;
 
+  resetRestart?: boolean;
+
   errorCodes?: number[];
 
   pools?: MiningPool[];
@@ -65,6 +67,7 @@ class Config {
           errorCodes,
           pools,
           hashboards,
+          resetRestart,
         } = req.body;
 
         if (envTemp) {
@@ -93,6 +96,10 @@ class Config {
 
         if (is.array(pools)) {
           miner.pools = pools;
+        }
+
+        if (is.boolean(resetRestart) && resetRestart) {
+          miner.rebootedAt = null;
         }
 
         // You have to provide all hashboards if you want to modify them

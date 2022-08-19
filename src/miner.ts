@@ -1,4 +1,5 @@
 import env from './env.js';
+import { add } from 'date-fns';
 
 interface Range {
   min: number;
@@ -30,6 +31,8 @@ interface MinerOptions {
   model: string;
 
   credentials: MinerCredentials;
+
+  deadTimeBetweenRestarts?: number;
 
   apiVersion: string;
   firmwareVersion: string;
@@ -122,7 +125,8 @@ class Miner {
 
   isSuspended: boolean = false;
 
-  sleepUntil: Date | null = null;
+  rebootedAt: Date | null = null;
+  deadTimeBetweenRestarts = 1; // In minutes
 
   isWarmingUp: boolean = true;
   stopWarmUpAfter: number = 5; // In minutes
@@ -155,6 +159,10 @@ class Miner {
 
     if (options.stopWarmUpAfter) {
       this.stopWarmUpAfter = options.stopWarmUpAfter;
+    }
+
+    if (options.deadTimeBetweenRestarts) {
+      this.deadTimeBetweenRestarts = options.deadTimeBetweenRestarts;
     }
 
     if (options.errorCodes) {
@@ -213,6 +221,22 @@ class Miner {
         errorCodes: this.errorCodes,
       },
     };
+  }
+
+  public isInRebootMode() {
+    let dead = false;
+    if (this.rebootedAt && this.deadTimeBetweenRestarts > 0) {
+      const onlineAt = add(new Date(), { minutes: this.deadTimeBetweenRestarts });
+      if (
+        onlineAt.getTime() > new Date().getTime()
+      ) {
+        dead = true;
+      } else {
+        this.rebootedAt = null;
+      }
+    }
+
+    return dead;
   }
 }
 

@@ -17,6 +17,7 @@
       "username": "admin",
       "password": "admin"
     },
+    "deadTimeBetweenReboots": "1",
     "apiVersion": "2.0.4",
     "firmwareVersion": "20220125.13.Rel",
     "powerDraw": {

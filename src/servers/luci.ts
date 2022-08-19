@@ -113,6 +113,14 @@ class LuciServer {
     this.server.register(fastifyCookie);
     this.server.register(fastifyFormBody);
 
+    this.server.addHook('onRequest', (_req, reply, done) => {
+      if (miner.isInRebootMode()) {
+        reply.code(503).send();
+      } else {
+        done();
+      }
+    });
+
     this.server.addHook('preHandler', (req, reply, done) => {
       if (req.cookies['auth']) {
         const cookieHash = createAuthCookieHash(miner);

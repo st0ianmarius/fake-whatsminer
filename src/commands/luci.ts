@@ -100,7 +100,14 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
   // System Reboot
   app.get('/cgi-bin/luci/admin/system/reboot', () => "token: 'reboot-token'");
   app.post('/cgi-bin/luci/admin/system/reboot/call', (_req, reply) => {
-    consola.success('Miner has been rebooted');
+    miner.rebootedAt = new Date();
+    consola.success(
+      `Miner has been restarted.${
+        miner.deadTimeBetweenRestarts > 0
+          ? ` Becoming unresponsive for ${miner.deadTimeBetweenRestarts} minutes`
+          : ''
+      }`
+    );
     reply.code(200).send();
   });
 

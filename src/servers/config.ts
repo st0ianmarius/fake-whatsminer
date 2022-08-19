@@ -44,7 +44,7 @@ class Config {
     this.server.post('/kill', (_req, reply) => {
       consola.info('Shutting down in 5 seconds');
 
-      // kill the process in 5 seconds
+      // Kill the process in 5 seconds
       setTimeout(() => {
         process.exit(0);
       }, ms('5s'));

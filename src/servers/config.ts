@@ -7,6 +7,7 @@ import Miner, {
   PowerMode,
   RangeOrNumber,
 } from '../miner';
+import ms from 'ms';
 
 interface ConfigServerOptions {
   port: number;
@@ -39,6 +40,17 @@ class Config {
     }
 
     this.server = fastify();
+
+    this.server.post('/kill', (_req, reply) => {
+      consola.info('Shutting down in 5 seconds');
+
+      // kill the process in 5 seconds
+      setTimeout(() => {
+        process.exit(0);
+      }, ms('5s'));
+
+      reply.code(200).send();
+    });
 
     this.server.post<{ Body: MinerConfigBody }>(
       '/config',

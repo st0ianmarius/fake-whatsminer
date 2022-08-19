@@ -2,6 +2,7 @@ import { FastifyInstance } from 'fastify';
 import consola from 'consola';
 import { createHash } from 'node:crypto';
 import Miner, { PowerMode } from '../miner.js';
+import { add } from 'date-fns';
 
 const createAuthCookieHash = (miner: Miner) =>
   createHash('sha256')
@@ -100,14 +101,23 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
   // System Reboot
   app.get('/cgi-bin/luci/admin/system/reboot', () => "token: 'reboot-token'");
   app.post('/cgi-bin/luci/admin/system/reboot/call', (_req, reply) => {
-    miner.rebootedAt = new Date();
-    consola.success(
-      `Miner has been restarted.${
-        miner.deadTimeBetweenRestarts > 0
-          ? ` Will act dead for ${miner.deadTimeBetweenRestarts} minutes`
-          : ''
-      }`
-    );
+    if (miner.deadTimeBetweenRestarts > 0) {
+      miner.rebootedAt = new Date();
+      const rebootedUntil = add(miner.rebootedAt, {
+        minutes: miner.deadTimeBetweenRestarts,
+      });
+
+      consola.success(
+        `Miner has been restarted. Unresponsive for ${
+          miner.deadTimeBetweenRestarts
+        } minutes, until ${rebootedUntil.toISOString()}`
+      );
+    } else {
+      consola.success(
+        'Miner has been restarted. No dead time between restarts'
+      );
+    }
+
     reply.code(200).send();
   });
 
@@ -162,18 +172,18 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
     }
 
     return `
-          <input type="text" name="token" value="power-token"/>     
-          
+          <input type="text" name="token" value="power-token"/>
+
           <form action="/cgi-bin/luci/admin/network/btminer/power" method="post">
             <input type="text" name="cbid.btminer.default.miner_type" value="${powerModeNum}"/>
           </form>
-          
+
           <div class="cbi-value-title">
             <span>Power Mode</span>
           </div>
-          
+
           <input type="checkbox" class="cbi-input-radio" value="${powerModeNum}"
-             checked />       
+             checked />
         `;
   });
 };

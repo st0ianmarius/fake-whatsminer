@@ -202,6 +202,18 @@ class Miner {
 
     return stats as MinerStats;
   }
+
+  public getInfo() {
+    return {
+      ...this.getStats(),
+      ...{
+        isSuspended: this.isSuspended,
+        isWarmingUp: this.isWarmingUp,
+        pools: this.pools,
+        errorCodes: this.errorCodes,
+      },
+    };
+  }
 }
 
 export { PowerMode, MinerOptions, RangeOrNumber, MiningPool, Hashboard };

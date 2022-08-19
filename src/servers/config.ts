@@ -41,7 +41,7 @@ class Config {
 
     this.server = fastify();
 
-    this.server.get('/stats', () => miner.getStats());
+    this.server.get('/stats', () => miner.getInfo());
 
     this.server.post('/kill', (_req, reply) => {
       consola.info('Shutting down in 5 seconds');
@@ -101,7 +101,7 @@ class Config {
         }
       }
 
-      return miner.getStats();
+      return miner.getInfo();
     });
   }
 

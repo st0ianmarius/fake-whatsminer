@@ -47,7 +47,7 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
     }
   );
 
-  // Config
+  // MinerControl
   app.get('/cgi-bin/luci/admin/network/btminer', (_req, res) => {
     res.send(`
           <input type="text" name="token" value="pool-token"/>     

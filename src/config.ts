@@ -3,14 +3,14 @@ import env from './env.js';
 import { MinerOptions } from './miner.js';
 import { BtminerServerOptions } from './servers/btminer';
 import { LuciServerOptions } from './servers/luci';
-import { ConfigServerOptions } from './servers/config';
+import { MinerControlServerOptions } from './servers/miner-control';
 
 interface Config {
   miner: MinerOptions;
   servers: {
     btminer: BtminerServerOptions;
     luci: LuciServerOptions;
-    config: ConfigServerOptions;
+    minerControl: MinerControlServerOptions;
   };
 }
 

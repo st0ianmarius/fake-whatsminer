@@ -212,7 +212,7 @@ class Miner {
     return stats as MinerStats;
   }
 
-  public getInfo() {
+  public getFullStats() {
     return {
       ...this.getStats(),
       ...{
@@ -221,6 +221,36 @@ class Miner {
         pools: this.pools,
         errorCodes: this.errorCodes,
       },
+    };
+  }
+
+  public getConfig() {
+    return {
+      model: this.model,
+      mac: this.mac,
+
+      credentials: this.credentials,
+
+      apiVersion: this.apiVersion,
+      firmwareVersion: this.firmwareVersion,
+
+      powerMode: this.powerMode,
+      powerDraw: this.powerDraw,
+
+      psu: this.psu,
+
+      envTemp: this.envTemp,
+
+      isSuspended: this.isSuspended,
+      isWarmingUp: this.isWarmingUp,
+
+      errorCodes: this.errorCodes,
+
+      deadTimeBetweenRestarts: this.deadTimeBetweenRestarts,
+      stopWarmUpAfter: this.stopWarmUpAfter,
+
+      pools: this.pools,
+      hashboards: this.hashboards,
     };
   }
 

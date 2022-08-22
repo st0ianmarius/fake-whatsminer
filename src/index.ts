@@ -4,7 +4,7 @@ import config, { version } from './config.js';
 import Miner from './miner.js';
 import BtminerServer from './servers/btminer.js';
 import LuciServer from './servers/luci.js';
-import ConfigServer from './servers/config.js';
+import MinerControlServer from './servers/miner-control.js';
 
 consola.info(`Running on version ${version}`);
 
@@ -27,9 +27,12 @@ await btminerServer.start();
 const luciServer = new LuciServer(miner, config.servers.luci);
 await luciServer.start();
 
-// Config server
-const configServer = new ConfigServer(miner, config.servers.config);
-await configServer.start();
+// Miner Control server
+const minerControlServer = new MinerControlServer(
+  miner,
+  config.servers.minerControl
+);
+await minerControlServer.start();
 
 // Log miner stats periodically
 setInterval(() => {

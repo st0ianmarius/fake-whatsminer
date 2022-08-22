@@ -15,6 +15,7 @@
     "dot-notation": "off",
     "no-bitwise": "off",
     "max-depth": "off",
-    "no-negated-condition": "off"
+    "no-negated-condition": "off",
+    "new-cap": "off"
   }
 }

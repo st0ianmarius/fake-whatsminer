@@ -228,8 +228,10 @@ class MinerControlServer {
     this.registerRoutes();
 
     const addr = await this.server.listen({ port: this.port, host: '0.0.0.0' });
-    consola.success(`Config Server is now listening on ${addr}`);
-    consola.info(`Config Server documentation is available at ${addr}/docs`);
+    consola.success(`Miner Control Server is now listening on ${addr}`);
+    consola.info(
+      `Miner Control Server documentation is available on ${addr}/docs`
+    );
   }
 }
 

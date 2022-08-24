@@ -1,6 +1,6 @@
 import env from './env.js';
 import consola from 'consola';
-import { add } from 'date-fns';
+import { add, isAfter } from 'date-fns';
 
 interface Range {
   min: number;
@@ -126,6 +126,8 @@ class Miner {
 
   isSuspended: boolean = false;
 
+  miningStartDate: Date = new Date();
+
   rebootedAt: Date | null = null;
   deadTimeBetweenRestarts = 1; // In minutes
 
@@ -198,11 +200,10 @@ class Miner {
       })),
     };
 
-    // Get node process uptime in minutes
-    const uptime = Math.floor(process.uptime() / 60);
-
     if (this.isWarmingUp) {
-      if (uptime >= this.stopWarmUpAfter) {
+      const stopWarmupDate = add(new Date(), { minutes: this.stopWarmUpAfter });
+      if (isAfter(stopWarmupDate, this.miningStartDate)) {
+        consola.info('Miner is moving out of warmup phase');
         this.isWarmingUp = false;
       }
     }

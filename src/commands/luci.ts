@@ -101,6 +101,8 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
   // System Reboot
   app.get('/cgi-bin/luci/admin/system/reboot', () => "token: 'reboot-token'");
   app.post('/cgi-bin/luci/admin/system/reboot/call', (_req, reply) => {
+    miner.miningStartDate = new Date();
+
     if (miner.deadTimeBetweenRestarts > 0) {
       miner.rebootedAt = new Date();
       const rebootedUntil = add(miner.rebootedAt, {

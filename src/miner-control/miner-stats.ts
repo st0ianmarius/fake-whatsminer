@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import Miner, { PowerMode } from '../miner';
+import Miner, { PowerMode } from '../miner.js';
 import { Type } from '@sinclair/typebox';
 
 const MinerStatsResponse = Type.Object({

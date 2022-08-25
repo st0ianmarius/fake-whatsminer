@@ -1,5 +1,6 @@
 import env from './env.js';
 import consola from 'consola';
+import is from '@sindresorhus/is';
 import { add, isAfter } from 'date-fns';
 
 interface Range {
@@ -8,6 +9,12 @@ interface Range {
 }
 
 type RangeOrNumber = Range | number;
+
+type PoolShare =
+  | {
+      incrementBy: number;
+    }
+  | number;
 
 enum PowerMode {
   Low = 'Low',
@@ -25,6 +32,22 @@ interface Hashboard {
   hashrate: RangeOrNumber;
   temperature: RangeOrNumber;
   fanSpeed: FanSpeed;
+  poolShares: {
+    accepted: PoolShare;
+    rejected: PoolShare;
+  };
+  chipFrequency: RangeOrNumber;
+  meta: {
+    effectiveChips: number;
+  };
+}
+
+interface HashboardState {
+  id: number;
+  poolShares: {
+    accepted: number;
+    rejected: number;
+  };
 }
 
 interface MinerOptions {
@@ -70,6 +93,14 @@ interface MinerStats {
     fanSpeed: {
       in: number;
       out: number;
+    };
+    poolShares: {
+      accepted: number;
+      rejected: number;
+    };
+    chipFrequency: number;
+    meta: {
+      effectiveChips: number;
     };
   }[];
 }
@@ -136,6 +167,8 @@ class Miner {
 
   hashboards: Hashboard[];
 
+  hashboardsState: HashboardState[];
+
   pools: MiningPool[] = [];
 
   errorCodes: number[] = [];
@@ -177,6 +210,25 @@ class Miner {
     }
 
     this.hashboards = options.hashboards;
+    this.hashboardsState = this.hashboards.map((board) => {
+      const state = {
+        id: board.id,
+        poolShares: {
+          accepted: 0,
+          rejected: 0,
+        },
+      };
+
+      if (is.number(board.poolShares.accepted)) {
+        state.poolShares.accepted = board.poolShares.accepted;
+      }
+
+      if (is.number(board.poolShares.rejected)) {
+        state.poolShares.rejected = board.poolShares.rejected;
+      }
+
+      return state;
+    });
   }
 
   getStats(): MinerStats {
@@ -189,20 +241,51 @@ class Miner {
 
       envTemp: getRangeOrNumberValue(this.envTemp),
 
-      hashboards: this.hashboards.map((hashboard) => ({
-        id: hashboard.id,
-        hashrate: getRangeOrNumberValue(hashboard.hashrate),
-        temperature: getRangeOrNumberValue(hashboard.temperature),
-        fanSpeed: {
-          in: getRangeOrNumberValue(hashboard.fanSpeed.in),
-          out: getRangeOrNumberValue(hashboard.fanSpeed.out),
-        },
-      })),
+      hashboards: this.hashboards.map((hashboard) => {
+        const poolShares = {
+          accepted: 0,
+          rejected: 0,
+        };
+
+        const boardState = this.hashboardsState.find(
+          (b) => b.id === hashboard.id
+        );
+        if (boardState) {
+          if (is.object(hashboard.poolShares.accepted)) {
+            boardState.poolShares.accepted +=
+              hashboard.poolShares.accepted.incrementBy;
+          }
+
+          if (is.object(hashboard.poolShares.rejected)) {
+            boardState.poolShares.rejected +=
+              hashboard.poolShares.rejected.incrementBy;
+          }
+
+          poolShares.accepted = boardState.poolShares.accepted;
+          poolShares.rejected = boardState.poolShares.rejected;
+        }
+
+        return {
+          poolShares,
+          id: hashboard.id,
+          hashrate: getRangeOrNumberValue(hashboard.hashrate),
+          temperature: getRangeOrNumberValue(hashboard.temperature),
+          fanSpeed: {
+            in: getRangeOrNumberValue(hashboard.fanSpeed.in),
+            out: getRangeOrNumberValue(hashboard.fanSpeed.out),
+          },
+          chipFrequency: getRangeOrNumberValue(hashboard.chipFrequency),
+          meta: hashboard.meta,
+        };
+      }),
     };
 
     if (this.isWarmingUp) {
-      const stopWarmupDate = add(new Date(), { minutes: this.stopWarmUpAfter });
-      if (isAfter(stopWarmupDate, this.miningStartDate)) {
+      const stopWarmupDate = add(this.miningStartDate, {
+        minutes: this.stopWarmUpAfter,
+      });
+      const now = new Date();
+      if (isAfter(now, stopWarmupDate)) {
         consola.info('Miner is moving out of warmup phase');
         this.isWarmingUp = false;
       }

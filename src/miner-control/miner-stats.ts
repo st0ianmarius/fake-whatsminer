@@ -21,9 +21,17 @@ const MinerStatsResponse = Type.Object({
       id: Type.Number(),
       hashrate: Type.Number(),
       temperature: Type.Number(),
+      chipFrequency: Type.Number(),
+      poolShares: Type.Object({
+        accepted: Type.Number(),
+        rejected: Type.Number(),
+      }),
       fanSpeed: Type.Object({
         in: Type.Number(),
         out: Type.Number(),
+      }),
+      meta: Type.Object({
+        effectiveChips: Type.Number(),
       }),
     })
   ),

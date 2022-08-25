@@ -11,6 +11,13 @@ const RangeOrNumber = Type.Union([
   Type.Number(),
 ]);
 
+const PoolShare = Type.Union([
+  Type.Object({
+    incrementBy: Type.Number(),
+  }),
+  Type.Number(),
+]);
+
 const MinerConfig = Type.Partial(
   Type.Object({
     envTemp: RangeOrNumber,
@@ -36,9 +43,17 @@ const MinerConfig = Type.Partial(
         id: Type.Number(),
         hashrate: RangeOrNumber,
         temperature: RangeOrNumber,
+        chipFrequency: RangeOrNumber,
         fanSpeed: Type.Object({
           in: RangeOrNumber,
           out: RangeOrNumber,
+        }),
+        poolShares: Type.Object({
+          accepted: PoolShare,
+          rejected: PoolShare,
+        }),
+        meta: Type.Object({
+          effectiveChips: Type.Number(),
         }),
       })
     ),
@@ -74,9 +89,17 @@ const MinerConfigResponse = Type.Object({
       id: Type.Number(),
       hashrate: RangeOrNumber,
       temperature: RangeOrNumber,
+      chipFrequency: RangeOrNumber,
       fanSpeed: Type.Object({
         in: RangeOrNumber,
         out: RangeOrNumber,
+      }),
+      poolShares: Type.Object({
+        accepted: PoolShare,
+        rejected: PoolShare,
+      }),
+      meta: Type.Object({
+        effectiveChips: Type.Number(),
       }),
     })
   ),

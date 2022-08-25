@@ -19,6 +19,12 @@ if (config.miner.deadTimeBetweenRestarts) {
   );
 }
 
+if (config.miner.stopWarmUpAfter) {
+  consola.info(
+    `Miner warm up time set to ${config.miner.stopWarmUpAfter} minutes`
+  );
+}
+
 // Btminer interface
 const btminerServer = new BtminerServer(miner, config.servers.btminer);
 await btminerServer.start();

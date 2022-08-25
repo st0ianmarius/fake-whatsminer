@@ -5,6 +5,7 @@ import Miner from '../miner.js';
 
 import minerConfig from '../miner-control/miner-config.js';
 import minerStats from '../miner-control/miner-stats.js';
+import minerCmd from '../miner-control/miner-cmd.js';
 
 interface MinerControlServerOptions {
   port: number;
@@ -38,6 +39,7 @@ class MinerControlServer {
     };
     await minerConfig(this.server, pluginOpts);
     await minerStats(this.server, pluginOpts);
+    await minerCmd(this.server, pluginOpts);
 
     // Start the server
     const addr = await this.server.listen({ port: this.port, host: '0.0.0.0' });

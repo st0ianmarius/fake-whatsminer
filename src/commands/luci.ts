@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
 import consola from 'consola';
 import { createHash } from 'node:crypto';
-import Miner, { PowerMode } from '../miner.js';
+import Miner, { MinerCommand, PowerMode } from '../miner.js';
 import { add } from 'date-fns';
 
 const createAuthCookieHash = (miner: Miner) =>
@@ -100,7 +100,9 @@ const registerCommands = (app: FastifyInstance, miner: Miner) => {
 
   // System Reboot
   app.get('/cgi-bin/luci/admin/system/reboot', () => "token: 'reboot-token'");
-  app.post('/cgi-bin/luci/admin/system/reboot/call', (_req, reply) => {
+  app.post('/cgi-bin/luci/admin/system/reboot/call', async (_req, reply) => {
+    await miner.handleCmdWithBehaviour(MinerCommand.SystemReboot);
+
     miner.miningStartDate = new Date();
 
     if (miner.deadTimeBetweenRestarts > 0) {

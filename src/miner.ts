@@ -2,6 +2,7 @@ import env from './env.js';
 import consola from 'consola';
 import is from '@sindresorhus/is';
 import { add, isAfter } from 'date-fns';
+import { sleep } from './util.js';
 
 interface Range {
   min: number;
@@ -20,6 +21,15 @@ enum PowerMode {
   Low = 'Low',
   Normal = 'Normal',
   High = 'High',
+}
+
+enum MinerCommand {
+  Detect = 'Detect',
+  GetStats = 'GetStats',
+  GetSystemInfo = 'GetSystemInfo',
+  Suspend = 'Suspend',
+  Resume = 'Resume',
+  SystemReboot = 'SystemReboot',
 }
 
 interface FanSpeed {
@@ -131,6 +141,11 @@ interface MinerCredentials {
   password: string;
 }
 
+interface MinerCmdBehaviour {
+  fail: boolean;
+  delay: number;
+}
+
 const getRangeOrNumberValue = (value: RangeOrNumber): number => {
   if (typeof value === 'number') {
     return value;
@@ -172,6 +187,8 @@ class Miner {
   pools: MiningPool[] = [];
 
   errorCodes: number[] = [];
+
+  cmdBehaviour: Map<MinerCommand, MinerCmdBehaviour> = new Map();
 
   constructor(options: MinerOptions) {
     this.mac = options.mac;
@@ -354,7 +371,27 @@ class Miner {
 
     return dead;
   }
+
+  public async handleCmdWithBehaviour(cmd: MinerCommand) {
+    const cmdBehaviour = this.cmdBehaviour.get(cmd);
+    if (cmdBehaviour) {
+      if (cmdBehaviour.delay > 0) {
+        await sleep(cmdBehaviour.delay);
+      }
+
+      if (cmdBehaviour.fail) {
+        throw new Error('Programmatic fail');
+      }
+    }
+  }
 }
 
-export { PowerMode, MinerOptions, RangeOrNumber, MiningPool, Hashboard };
+export {
+  PowerMode,
+  MinerOptions,
+  RangeOrNumber,
+  MiningPool,
+  Hashboard,
+  MinerCommand,
+};
 export default Miner;

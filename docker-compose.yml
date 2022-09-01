@@ -1,0 +1,14 @@
+
+version: '3.3'
+services:
+  mockminer:
+    environment:
+    - MINER_MAC='52:54:00:AF:FE:00'
+    ports:
+      - 9000:9000
+      - 80:80
+    restart: always
+    logging:
+      options:
+        max-size: 10m
+    image: ghcr.io/northern-data-ag/steiger-fake-whatsminer:0edd849
